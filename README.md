@@ -28,20 +28,19 @@ https://github.com/microsoft/PowerToys/tree/main/doc/devdocs/modules/launcher
 Powertoy run
 - [x] open vscode in current directory 
 - [ ] yt-dl "url" (only available if yt-dl is on the path)
+- [ ] brighter, darker, fullbright
+- [ ] alarm clock
 - [x] ip: shows current local ip https://github.com/microsoft/PowerToys/issues/19284
-- [ ] brighter, darker, fullbright: integrated and use the current monitor, also shows the current brightness in the text
-
 
 Add custom command plugin
+- [ ] Read a config file that's placed somewhere
 - [ ] %appdata% & %temp%
 - [ ] start file HTTP server using current directory 
 
-Extra
-- [ ] alarm clock
+Far future ideas
 - [ ] do not disturb
-- [ ] brightness: gives you a proper brightness slider or two key to press to quickly adjust the brightness 
 - [ ] file browser (uses current explorer window)
-- [ ] Music lyrics and title search
+- [ ] Music lyrics and title search or a "find" command
 - [ ] color converter?
 - [ ] better calculator?
 - [ ] add to (Google) calendar
