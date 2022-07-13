@@ -38,6 +38,7 @@ Add custom command plugin
 - [ ] start file HTTP server using current directory 
 
 Far future ideas
+- [ ] git init
 - [ ] do not disturb
 - [ ] file browser (uses current explorer window)
 - [ ] Music lyrics and title search or a "find" command
