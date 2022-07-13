@@ -1,0 +1,14 @@
+{
+  "ID": "EF1F634F20484459A3679B4FE1B07999",
+  "Disabled": false,
+  "ActionKeyword": "bright",
+  "Name": "MonitorBrightness",
+  "Author": "Stefnotch",
+  "Version": "1.0.0",
+  "Language": "csharp",
+  "Website": "https://github.com/stefnotch",
+  "ExecuteFileName": "MonitorBrightness.dll",
+  "IsGlobal": false,
+  "IcoPathDark": "assets\\icon.dark.png",
+  "IcoPathLight": "assets\\icon.light.png"
+}

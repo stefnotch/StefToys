@@ -1,29 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UseWpf>true</UseWpf>
-    <PlatformTarget>x64</PlatformTarget>
     <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Update="assets\icon.dark.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="assets\icon.light.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="plugin.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="assets\" />
-  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="PowerToys.Common.UI">
@@ -40,8 +24,20 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="assets\icon.dark.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="assets\icon.light.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="plugin.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /E /Y &quot;$(TargetDir)&quot; &quot;C:\Program Files\PowerToys\modules\launcher\Plugins\VSCodeLauncher&quot;" />
+    <Exec Command="xcopy /E /Y &quot;$(TargetDir)&quot; &quot;C:\Program Files\PowerToys\modules\launcher\Plugins\MonitorBrightness&quot;" />
   </Target>
 
 </Project>
