@@ -1,6 +1,6 @@
 # StefToys - Powertoys Plugins
 
-## How to get started
+## How to make your own plugins
 
 1. Install PowerToys
 2. Go to `C:\Program Files\PowerToys\modules\launcher` and you'll find a bunch of interesting .dlls there.
