@@ -1,5 +1,10 @@
 # StefToys - Powertoys Plugins
 
+# Update
+
+This project is dead, at least until PowerToys Run becomes usable for my purposes. As of right now, it basically doesn't support anything that neatly fits into its rather simple scheme.
+
+
 ## How to make your own plugins
 
 1. Install PowerToys
