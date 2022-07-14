@@ -35,6 +35,11 @@ namespace MonitorBrightness
         public static extern bool DestroyPhysicalMonitor(IntPtr physicalMonitorPtr);
 
 
+        [DllImport("dxva2.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool DestroyPhysicalMonitors(uint physicalMonitorArraySize, ref PHYSICAL_MONITOR[] physicalMonitorArray);
+
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public struct POINT
         {

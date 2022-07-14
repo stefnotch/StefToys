@@ -1,10 +1,11 @@
-﻿using System.Windows.Input;
+﻿using System.Runtime.InteropServices;
+using System.Windows.Input;
 using Wox.Plugin;
 
 
 namespace MonitorBrightness
 {
-    public class Main : IPlugin, IDelayedExecutionPlugin, IContextMenu
+    public class Main : IPlugin, IContextMenu
     {
         private static readonly int NumberOfIncrements = 11;
         private PluginInitContext? Context { get; set; }
@@ -19,50 +20,69 @@ namespace MonitorBrightness
 
         public List<Result> Query(Query query)
         {
-            return new List<Result>();
-        }
-
-        public List<Result> Query(Query query, bool delayedExecution)
-        {
-            if (query == null)
+            // Powertoys has a bug where it doesn't re-query when you open the window again.
+            // So we can't safely cache stuff.
+            if(query.ActionKeyword != Context!.CurrentPluginMetadata.ActionKeyword)
             {
                 return new List<Result>();
             }
-            var brightnesses = GetBrightnesses();
+
+            var monitor = Monitors.GetHMonitorAtCursor();
+            if (monitor == null)
+            {
+                return new List<Result>() {
+                    new Result()
+                    {
+                        Title = "Monitor fetching error",
+                        SubTitle = Marshal.GetLastPInvokeError() + ""
+                    }
+                };
+            }
+
+            if (query.Search.Length < 2)
+            {
+                Context?.API?.ChangeQuery(query.RawQuery + "..", false);
+                return new List<Result>();
+            }
+
+            var brightnesses = GetBrightnesses(monitor);
             return new List<Result>() {
                 new Result()
                 {
                     Title = "Change brightness",
-                    SubTitle = GetSubtitle(brightnesses),
+                    SubTitle = GetSubtitle(brightnesses),   
                     Action = e =>
                     {
                         return true;
                     },
                     ContextData = new ResultContext()
                     {
+                        HMonitor = monitor,
                         BrightnessInfos = brightnesses,
+                        Query = query.RawQuery
                     },
-                }
+                },
             };
         }
 
         private static string GetSubtitle(IEnumerable<Monitors.MonitorBrightnessInfo> brightnesses)
         {
-            return "Brightness: " + string.Join(
+            string percentages = string.Join(
                                     ", ",
                                     brightnesses.Select(v => ToPercent(v.CurrentValue, v.MinValue, v.MaxValue))
                                     );
+            return "Brightness: " + (percentages.Length > 0 ? percentages : "-");
         }
 
-        private static List<Monitors.MonitorBrightnessInfo> GetBrightnesses()
+        private static List<Monitors.MonitorBrightnessInfo> GetBrightnesses(Monitors.HMonitor hMonitor)
         {
-            using var monitor = Monitors.GetMonitorsAtCursor();
+            using var monitor = Monitors.GetMonitorsFrom(hMonitor);
             if (monitor == null)
             {
                 return new();
             }
 
-            return monitor.GetMonitorBrightnesses().ToList();
+            return monitor.GetMonitorBrightnesses();
         }
 
         private static string ToPercent(uint value, uint min, uint max)
@@ -90,7 +110,7 @@ namespace MonitorBrightness
 
             for (int i = 0; i < increments.Count - 1; i++)
             {
-                if(value >= increments[i])
+                if(value <= increments[i])
                 {
                     return increments[i + 1];
                 }
@@ -104,7 +124,7 @@ namespace MonitorBrightness
 
             for (int i = increments.Count - 1; i >= 1; i--)
             {
-                if (value <= increments[i])
+                if (value >= increments[i])
                 {
                     return increments[i - 1];
                 }
@@ -114,7 +134,9 @@ namespace MonitorBrightness
 
         internal class ResultContext
         {
+            internal Monitors.HMonitor HMonitor { get; init; }
             internal List<Monitors.MonitorBrightnessInfo> BrightnessInfos { get; init; }
+            internal string Query { get; init; }
         }
 
         public List<ContextMenuResult> LoadContextMenus(Result selectedResult)
@@ -130,44 +152,46 @@ namespace MonitorBrightness
                 new ()
                 {
                     Title = "Brighter",
-                    // TODO: The accelerator key doesn't work
-                    AcceleratorKey = Key.Up,
-                    AcceleratorModifiers = ModifierKeys.Control,
+                    // Figure out a nice accelerator key
+                    //AcceleratorKey = Key.D,
+                    //AcceleratorModifiers = ModifierKeys.None,
                     FontFamily = "Segoe MDL2 Assets",
                     Glyph = "\xE74A",
                     Action = _ => {
-                        using(var monitors = Monitors.GetMonitorsAtCursor())
+                        using(var monitors = Monitors.GetMonitorsFrom(contextData.HMonitor))
                         {
-                            if(monitors == null) return false;
-                            monitors.SetMonitorBrightnesses(v =>
+                            monitors?.SetMonitorBrightnesses(v =>
                             {
-                                // TODO: Fix the brightness increasing/decreasing
-                                v.CurrentValue = v.CurrentValue + 10;//GetNextBrightness(v.CurrentValue, v.MinValue, v.MaxValue);
+                                v.CurrentValue = GetNextBrightness(v.CurrentValue, v.MinValue, v.MaxValue);
                             });
-                            selectedResult.SubTitle = GetSubtitle(monitors.GetMonitorBrightnesses());
                         }
+                        Task.Run(() =>
+                        {
+                            //Context?.API?.ChangeQuery(contextData.Query, true);
+                        });
                         return false;
                     },
                 },
                 new ()
                 {
                     Title = "Darker",
-                    // TODO: The accelerator key doesn't work
-                    AcceleratorKey = Key.Down,
-                    AcceleratorModifiers = ModifierKeys.Control,
+                    // Figure out a nice accelerator key
+                    //AcceleratorKey = Key.D,
+                    //AcceleratorModifiers = ModifierKeys.None,
                     FontFamily = "Segoe MDL2 Assets",
                     Glyph = "\xE74B",
                     Action = _ => {
-                        using(var monitors = Monitors.GetMonitorsAtCursor())
+                        using(var monitors = Monitors.GetMonitorsFrom(contextData.HMonitor))
                         {
-                            if(monitors == null) return false;
-                            monitors.SetMonitorBrightnesses(v =>
+                            monitors?.SetMonitorBrightnesses(v =>
                             {
-                                // TODO: Fix the brightness increasing/decreasing
-                                v.CurrentValue = v.CurrentValue - 5; //GetPrevBrightness(v.CurrentValue, v.MinValue, v.MaxValue);
+                                v.CurrentValue = GetPrevBrightness(v.CurrentValue, v.MinValue, v.MaxValue);
                             });
-                            selectedResult.SubTitle = GetSubtitle(monitors.GetMonitorBrightnesses());
                         }
+                        Task.Run(() =>
+                        {
+                            //Context?.API?.ChangeQuery(contextData.Query, true);
+                        });
                         return false;
                     },
                 }

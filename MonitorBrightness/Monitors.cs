@@ -22,7 +22,12 @@ namespace MonitorBrightness
             _physicalMonitors = physicalMonitors;
         }
 
-        public static Monitors? GetMonitorsAtCursor()
+        public class HMonitor
+        {
+            public IntPtr MonitorPtr { get; init; }
+        }
+
+        public static HMonitor? GetHMonitorAtCursor()
         {
             if (!NativeMethods.GetCursorPos(out var cursor))
             {
@@ -33,15 +38,22 @@ namespace MonitorBrightness
             {
                 return null;
             }
+            return new HMonitor()
+            {
+                MonitorPtr = monitorPtr
+            };
+        }
 
+        public static Monitors? GetMonitorsFrom(HMonitor hMonitor)
+        {
             uint physicalMonitorsCount = 0;
-            if (!NativeMethods.GetNumberOfPhysicalMonitorsFromHMONITOR(monitorPtr, ref physicalMonitorsCount))
+            if (!NativeMethods.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor.MonitorPtr, ref physicalMonitorsCount))
             {
                 return null;
             }
 
             var physicalMonitors = new NativeMethods.PHYSICAL_MONITOR[physicalMonitorsCount];
-            if (!NativeMethods.GetPhysicalMonitorsFromHMONITOR(monitorPtr, physicalMonitorsCount, physicalMonitors))
+            if (!NativeMethods.GetPhysicalMonitorsFromHMONITOR(hMonitor.MonitorPtr, physicalMonitorsCount, physicalMonitors))
             {
                 return null;
             }
@@ -49,9 +61,13 @@ namespace MonitorBrightness
             return new Monitors(physicalMonitors);
         }
 
-        public IEnumerable<MonitorBrightnessInfo> GetMonitorBrightnesses()
+        public List<MonitorBrightnessInfo> GetMonitorBrightnesses()
         {
-            if (_physicalMonitors == null) yield break;
+            var result = new List<MonitorBrightnessInfo>();
+            if (_physicalMonitors == null)
+            {
+                return result;
+            }
 
             foreach(var monitor in _physicalMonitors)
             {
@@ -61,13 +77,14 @@ namespace MonitorBrightness
                     continue;
                 }
 
-                yield return new MonitorBrightnessInfo()
+                result.Add(new MonitorBrightnessInfo()
                 {
                     MinValue = minValue,
                     MaxValue = maxValue,
                     CurrentValue = currentValue,
-                };
+                });
             }
+            return result;
         }
 
         public bool SetMonitorBrightnesses(Action<MonitorBrightnessInfo> callback)
@@ -121,10 +138,11 @@ namespace MonitorBrightness
                 // set large fields to null
                 if (_physicalMonitors != null)
                 {
-                    foreach (var monitor in _physicalMonitors)
+                    /*foreach (var monitor in _physicalMonitors)
                     {
                         NativeMethods.DestroyPhysicalMonitor(monitor.physicalMonitorPtr);
-                    }
+                    }*/
+                    NativeMethods.DestroyPhysicalMonitors((uint)_physicalMonitors.Length, ref _physicalMonitors);
                 }
                 _physicalMonitors = null;
                 disposedValue = true;
