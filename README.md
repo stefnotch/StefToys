@@ -4,6 +4,8 @@
 
 This project is dead, at least until PowerToys Run becomes usable for my purposes. As of right now, it basically doesn't support anything that neatly fits into its rather simple scheme.
 
+I'm using the Flow launcher now.
+
 
 ## How to make your own plugins
 
@@ -28,25 +30,3 @@ This project is dead, at least until PowerToys Run becomes usable for my purpose
 
 https://github.com/microsoft/PowerToys/tree/main/doc/devdocs/modules/launcher
 
-## Tasks
-
-Powertoy run
-- [x] open vscode in current directory 
-- [ ] yt-dl "url" (only available if yt-dl is on the path)
-- [ ] brighter, darker, fullbright
-- [ ] alarm clock
-- [x] ip: shows current local ip https://github.com/microsoft/PowerToys/issues/19284
-
-Add custom command plugin
-- [ ] Read a config file that's placed somewhere
-- [ ] %appdata% & %temp%
-- [ ] start file HTTP server using current directory 
-
-Far future ideas
-- [ ] git init
-- [ ] do not disturb
-- [ ] file browser (uses current explorer window)
-- [ ] Music lyrics and title search or a "find" command
-- [ ] color converter?
-- [ ] better calculator?
-- [ ] add to (Google) calendar
